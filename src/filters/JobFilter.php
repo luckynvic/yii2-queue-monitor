@@ -92,7 +92,7 @@ class JobFilter extends BaseFilter
             self::IS_DONE => Module::t('main', 'Done'),
             self::IS_SUCCESS => Module::t('main', 'Done successfully'),
             self::IS_BURIED => Module::t('main', 'Buried'),
-            self::IS_FAILED => Module::t('main', 'Has failed attempts'),
+            // self::IS_FAILED => Module::t('main', 'Has failed attempts'),
             self::IS_STOPPED => Module::t('main', 'Stopped'),
         ];
     }
