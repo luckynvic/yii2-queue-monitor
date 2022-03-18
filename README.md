@@ -4,6 +4,8 @@ Yii2 Queue Analytics Module
 The module collects statistics about working of queues of an application, and provides web interface
 for research. Also the module allows to stop and replay any jobs manually.
 
+This use mongodb as database 
+
 [![Latest Stable Version](https://poser.pugx.org/zhuravljov/yii2-queue-monitor/v/stable.svg)](https://packagist.org/packages/zhuravljov/yii2-queue-monitor)
 [![Total Downloads](https://poser.pugx.org/zhuravljov/yii2-queue-monitor/downloads.svg)](https://packagist.org/packages/zhuravljov/yii2-queue-monitor)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/zhuravljov/yii2-queue-monitor/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/zhuravljov/yii2-queue-monitor/?branch=master)
@@ -44,32 +46,15 @@ return [
         'singletons' => [
             \zhuravljov\yii\queue\monitor\Env::class => [
                 'cache' => 'cache',
-                'db' => 'db',
-                'pushTableName'   => '{{%queue_push}}',
-                'execTableName'   => '{{%queue_exec}}',
-                'workerTableName' => '{{%queue_worker}}',
+                'db' => 'mongodb',
+                'pushTableName'   => 'queue_push',
+                'execTableName'   => 'queue_exec',
+                'workerTableName' => 'queue_worker',
             ],
         ],
     ],
 ];
 ```
-
-If you want use migrations of the extension, configure migration command in console config:
-
-```php
-'controllerMap' => [
-    'migrate' => [
-        'class' => \yii\console\controllers\MigrateController::class,
-        'migrationNamespaces' => [
-            //...
-            'zhuravljov\yii\queue\monitor\migrations',
-        ],
-    ],
-],
-```
-
-And apply migrations.
-
 
 ### Web
 

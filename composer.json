@@ -16,9 +16,9 @@
     },
     "require": {
         "php": ">=5.5.0",
-        "ext-pdo": "*",
         "yiisoft/yii2": "~2.0.14",
         "yiisoft/yii2-queue": ">=2.2.0",
+        "yiisoft/yii2-mongodb": "*",
         "yiisoft/yii2-bootstrap": "~2.0.0"
     },
     "require-dev": {
