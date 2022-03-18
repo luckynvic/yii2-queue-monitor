@@ -122,16 +122,8 @@ class WorkerRecord extends ActiveRecord
      */
     public function getExecTotal()
     {
-        // return $this->hasOne(ExecRecord::class, ['worker_id' => '_id'])
-        //     ->select([
-        //         'worker_id',
-        //         'started' => 'COUNT(*)',
-        //         'done' => 'COUNT(finished_at)',
-        //     ])
-        //     // ->groupBy('worker_id')
-        //     ->asArray();
         $started = ExecRecord::find()->where(['worker_id' => $this->id])->count();
-        $done = ExecRecord::find()->where(['worker_id' => $this->id])->andWhere(['not', 'finished_at', null])->count();
+        $done = ExecRecord::find()->where(['and', ['worker_id' => $this->id],['not', 'finished_at', null]])->count();
         return [
             'worker_id' => $this->id,
             'started' => $started,
