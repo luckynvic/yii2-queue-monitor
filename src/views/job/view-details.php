@@ -73,7 +73,7 @@ JobItemAsset::register($this);
     <?= ListView::widget([
         'dataProvider' => new ActiveDataProvider([
             'query' => $record->getChildren()
-                              ->with(['parent', 'firstExec', 'lastExec', 'execTotal']),
+                              ->with(['parent', 'firstExec', 'lastExec']),
             'sort' => [
                 'defaultOrder' => [
                     'id' => SORT_DESC,

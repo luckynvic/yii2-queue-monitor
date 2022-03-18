@@ -159,14 +159,13 @@ class PushRecord extends ActiveRecord
      */
     public function getExecTotal()
     {
-        return $this->hasOne(ExecRecord::class, ['push_id' => '_id'])
-            ->select([
-                'exec.push_id',
-                'attempts' => 'COUNT(*)',
-                'errors' => 'COUNT(exec.error)',
-            ])
-            // ->groupBy('exec.push_id')
-            ->asArray();
+            $attempts = ExecRecord::find()->where(['push_id' => $this->id])->count();
+            $errors = ExecRecord::find()->where(['worker_id' => $this->id])->andWhere(['not', 'error', null])->count();
+            return [
+                'push_id' => $this->id,
+                'attempts' => $attempts,
+                'errors' => $errors,
+            ];
     }
 
     /**
