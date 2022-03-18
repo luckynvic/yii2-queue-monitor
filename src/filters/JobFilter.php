@@ -105,9 +105,8 @@ class JobFilter extends BaseFilter
         return $this->env->cache->getOrSet(__METHOD__, function () {
             return PushRecord::find()
                 ->select(['sender_name'])
-                // ->groupBy('sender_name')
                 ->orderBy('sender_name')
-                ->column();
+                ->distinct('sender_name');
         }, 3600);
     }
 
@@ -119,9 +118,8 @@ class JobFilter extends BaseFilter
         return $this->env->cache->getOrSet(__METHOD__, function () {
             return PushRecord::find()
                 ->select(['job_class'])
-                // ->groupBy('job_class')
                 ->orderBy('job_class')
-                ->column();
+                ->distinct('job_class');
         }, 3600);
     }
 
