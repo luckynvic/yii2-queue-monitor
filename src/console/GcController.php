@@ -77,14 +77,12 @@ class GcController extends Controller
         $ids = PushRecord::find()
             ->deprecated($interval)
             ->done()
-            ->select('push.id')
+            ->select('_id')
             ->asArray()->column();
         $count = count($ids);
         if ($count && $this->confirm("Do you want to delete $count records?")) {
-            $count = PushRecord::getDb()->transaction(function () use ($ids) {
-                ExecRecord::deleteAll(['push_id' => $ids]);
-                return PushRecord::deleteAll(['id' => $ids]);
-            });
+            ExecRecord::deleteAll(['push_id' => $ids]);
+            $count = PushRecord::deleteAll(['id' => $ids]);
             $this->stdout("$count records deleted.\n");
         }
     }
@@ -95,11 +93,9 @@ class GcController extends Controller
     public function actionClearAll()
     {
         if ($this->confirm('Are you sure?')) {
-            $count = PushRecord::getDb()->transaction(function () {
-                WorkerRecord::deleteAll();
-                ExecRecord::deleteAll();
-                return PushRecord::deleteAll();
-            });
+            WorkerRecord::deleteAll();
+            ExecRecord::deleteAll();
+            $count = PushRecord::deleteAll();
             $this->stdout("$count records deleted.\n");
         }
     }

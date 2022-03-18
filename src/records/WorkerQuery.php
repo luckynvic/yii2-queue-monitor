@@ -7,7 +7,7 @@
 
 namespace zhuravljov\yii\queue\monitor\records;
 
-use yii\db\ActiveQuery;
+use yii\mongodb\ActiveQuery;
 use zhuravljov\yii\queue\monitor\Env;
 
 /**
@@ -40,7 +40,6 @@ class WorkerQuery extends ActiveQuery
     public function init()
     {
         parent::init();
-        $this->alias('worker');
     }
 
     /**
@@ -51,8 +50,8 @@ class WorkerQuery extends ActiveQuery
     public function byEvent($host, $pid)
     {
         return $this->andWhere([
-            'worker.host' => $host,
-            'worker.pid' => $pid,
+            'host' => $host,
+            'pid' => $pid,
         ]);
     }
 
@@ -62,18 +61,19 @@ class WorkerQuery extends ActiveQuery
     public function active()
     {
         return $this
-            ->andWhere(['worker.finished_at' => null])
-            ->leftJoin(['exec' => ExecRecord::tableName()], '{{exec}}.[[id]] = {{worker}}.[[last_exec_id]]')
-            ->leftJoin(['push' => PushRecord::tableName()], '{{push}}.[[id]] = {{exec}}.[[push_id]]')
+            ->andWhere(['finished_at' => null])
+            // ->with(['exec' => ExecRecord::collectionName()], '{{exec}}.[[id]] = {{worker}}.[[last_exec_id]]')
+            // ->with(['push' => PushRecord::collectionName()], '{{push}}.[[id]] = {{exec}}.[[push_id]]')
             ->andWhere([
                 'or',
-                ['>', 'worker.pinged_at', time() - $this->env->workerPingInterval - 5],
+                ['>', 'pinged_at', time() - $this->env->workerPingInterval - 5],
                 [
                     'and',
-                    ['is not', 'worker.last_exec_id', null],
-                    ['exec.finished_at' => null],
+                    ['not', 'last_exec_id', null],
+                    ['finished_at' => null],
                 ],
-            ]);
+            ])
+            ;
     }
 
     /**

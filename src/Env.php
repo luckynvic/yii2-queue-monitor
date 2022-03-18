@@ -10,7 +10,7 @@ namespace zhuravljov\yii\queue\monitor;
 use Yii;
 use yii\base\BaseObject;
 use yii\caching\Cache;
-use yii\db\Connection;
+use yii\mongodb\Connection;
 use yii\di\Instance;
 
 /**
@@ -27,19 +27,19 @@ class Env extends BaseObject
     /**
      * @var Connection|array|string
      */
-    public $db = 'db';
+    public $db = 'mongodb';
     /**
      * @var string
      */
-    public $pushTableName = '{{%queue_push}}';
+    public $pushTableName = 'queue_push';
     /**
      * @var string
      */
-    public $execTableName = '{{%queue_exec}}';
+    public $execTableName = 'queue_exec';
     /**
      * @var string
      */
-    public $workerTableName = '{{%queue_worker}}';
+    public $workerTableName = 'queue_worker';
     /**
      * @var int
      */
@@ -76,19 +76,6 @@ class Env extends BaseObject
      */
     public function getHost()
     {
-        if ($this->db->driverName === 'mysql') {
-            $host = $this->db
-                ->createCommand('SELECT `HOST` FROM `information_schema`.`PROCESSLIST` WHERE `ID` = CONNECTION_ID()')
-                ->queryScalar();
-            return preg_replace('/:\d+$/', '', $host);
-        }
-
-        if ($this->db->driverName === 'pgsql') {
-            return $this->db
-                ->createCommand('SELECT inet_client_addr()')
-                ->queryScalar();
-        }
-
-        return '127.0.0.1'; // By default
+        return $_SERVER['HOSTNAME'] ?? '127.0.0.1';
     }
 }

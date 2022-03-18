@@ -9,7 +9,7 @@ namespace zhuravljov\yii\queue\monitor\records;
 
 use Yii;
 use yii\base\InvalidArgumentException;
-use yii\db\ActiveRecord;
+use yii\mongodb\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\queue\JobInterface;
@@ -81,9 +81,37 @@ class PushRecord extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function collectionName()
     {
         return Env::ensure()->pushTableName;
+    }
+
+    /**
+     * @return array list of attribute names.
+     */
+    public function attributes()
+    {
+        return [
+            '_id',
+            'parent_id',
+            'sender_name',
+            'job_uid',
+            'job_class',
+            'job_data',
+            'ttr',
+            'delay',
+            'trace',
+            'context',
+            'pushed_at',
+            'stopped_at',
+            'first_exec_id',
+            'last_exec_id',
+        ];
+    }
+
+    public function getId()
+    {
+        return (string) $this->_id;
     }
 
     /**
@@ -91,7 +119,7 @@ class PushRecord extends ActiveRecord
      */
     public function getParent()
     {
-        return $this->hasOne(static::class, ['id' => 'parent_id']);
+        return $this->hasOne(static::class, ['_id' => 'parent_id']);
     }
 
     /**
@@ -99,7 +127,7 @@ class PushRecord extends ActiveRecord
      */
     public function getChildren()
     {
-        return $this->hasMany(static::class, ['parent_id' => 'id']);
+        return $this->hasMany(static::class, ['parent_id' => '_id']);
     }
 
     /**
@@ -107,7 +135,7 @@ class PushRecord extends ActiveRecord
      */
     public function getExecs()
     {
-        return $this->hasMany(ExecRecord::class, ['push_id' => 'id']);
+        return $this->hasMany(ExecRecord::class, ['push_id' => '_id']);
     }
 
     /**
@@ -115,7 +143,7 @@ class PushRecord extends ActiveRecord
      */
     public function getFirstExec()
     {
-        return $this->hasOne(ExecRecord::class, ['id' => 'first_exec_id']);
+        return $this->hasOne(ExecRecord::class, ['_id' => 'first_exec_id']);
     }
 
     /**
@@ -123,7 +151,7 @@ class PushRecord extends ActiveRecord
      */
     public function getLastExec()
     {
-        return $this->hasOne(ExecRecord::class, ['id' => 'last_exec_id']);
+        return $this->hasOne(ExecRecord::class, ['_id' => 'last_exec_id']);
     }
 
     /**
@@ -131,13 +159,13 @@ class PushRecord extends ActiveRecord
      */
     public function getExecTotal()
     {
-        return $this->hasOne(ExecRecord::class, ['push_id' => 'id'])
+        return $this->hasOne(ExecRecord::class, ['push_id' => '_id'])
             ->select([
                 'exec.push_id',
                 'attempts' => 'COUNT(*)',
                 'errors' => 'COUNT(exec.error)',
             ])
-            ->groupBy('exec.push_id')
+            // ->groupBy('exec.push_id')
             ->asArray();
     }
 

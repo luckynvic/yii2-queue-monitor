@@ -7,7 +7,7 @@
 
 namespace zhuravljov\yii\queue\monitor\records;
 
-use yii\db\ActiveQuery;
+use yii\mongodb\ActiveQuery;
 
 /**
  * Exec Query
@@ -22,7 +22,6 @@ class ExecQuery extends ActiveQuery
     public function init()
     {
         parent::init();
-        $this->alias('exec');
     }
 
     /**

@@ -8,7 +8,7 @@
 namespace zhuravljov\yii\queue\monitor\records;
 
 use Yii;
-use yii\db\ActiveRecord;
+use yii\mongodb\ActiveRecord;
 use zhuravljov\yii\queue\monitor\Env;
 
 /**
@@ -57,9 +57,33 @@ class ExecRecord extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function collectionName()
     {
         return Env::ensure()->execTableName;
+    }
+
+    /**
+     * @return array list of attribute names.
+     */
+    public function attributes()
+    {
+        return [
+            '_id',
+            'push_id',
+            'worker_id',
+            'attempt',
+            'started_at',
+            'finished_at',
+            'memory_usage',
+            'error',
+            'retry',
+            'result_data'
+        ];
+    }
+
+    public function getId()
+    {
+        return (string) $this->_id;
     }
 
     /**
@@ -67,7 +91,7 @@ class ExecRecord extends ActiveRecord
      */
     public function getPush()
     {
-        return $this->hasOne(PushRecord::class, ['id' => 'push_id']);
+        return $this->hasOne(PushRecord::class, ['_id' => 'push_id']);
     }
 
     /**
@@ -75,7 +99,7 @@ class ExecRecord extends ActiveRecord
      */
     public function getWorker()
     {
-        return $this->hasOne(WorkerRecord::class, ['id' => 'worker_id']);
+        return $this->hasOne(WorkerRecord::class, ['_id' => 'worker_id']);
     }
 
     /**

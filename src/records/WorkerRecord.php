@@ -8,7 +8,7 @@
 namespace zhuravljov\yii\queue\monitor\records;
 
 use Yii;
-use yii\db\ActiveRecord;
+use yii\mongodb\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use zhuravljov\yii\queue\monitor\Env;
 use zhuravljov\yii\queue\monitor\Module;
@@ -59,9 +59,32 @@ class WorkerRecord extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function collectionName()
     {
         return Env::ensure()->workerTableName;
+    }
+
+    /**
+     * @return array list of attribute names.
+     */
+    public function attributes()
+    {
+        return [
+            '_id',
+            'sender_name',
+            'host',
+            'pid',
+            'started_at',
+            'pinged_at',
+            'stopped_at',
+            'finished_at',
+            'last_exec_id',
+        ];
+    }
+
+    public function getId()
+    {
+        return (string) $this->_id;
     }
 
     public function attributeLabels()
@@ -83,7 +106,7 @@ class WorkerRecord extends ActiveRecord
      */
     public function getLastExec()
     {
-        return $this->hasOne(ExecRecord::class, ['id' => 'last_exec_id']);
+        return $this->hasOne(ExecRecord::class, ['_id' => 'last_exec_id']);
     }
 
     /**
@@ -91,7 +114,7 @@ class WorkerRecord extends ActiveRecord
      */
     public function getExecs()
     {
-        return $this->hasMany(ExecRecord::class, ['worker_id' => 'id']);
+        return $this->hasMany(ExecRecord::class, ['worker_id' => '_id']);
     }
 
     /**
@@ -99,14 +122,21 @@ class WorkerRecord extends ActiveRecord
      */
     public function getExecTotal()
     {
-        return $this->hasOne(ExecRecord::class, ['worker_id' => 'id'])
-            ->select([
-                'exec.worker_id',
-                'started' => 'COUNT(*)',
-                'done' => 'COUNT(exec.finished_at)',
-            ])
-            ->groupBy('worker_id')
-            ->asArray();
+        // return $this->hasOne(ExecRecord::class, ['worker_id' => '_id'])
+        //     ->select([
+        //         'worker_id',
+        //         'started' => 'COUNT(*)',
+        //         'done' => 'COUNT(finished_at)',
+        //     ])
+        //     // ->groupBy('worker_id')
+        //     ->asArray();
+        $started = ExecRecord::find()->where(['worker_id' => $this->id])->count();
+        $done = ExecRecord::find()->where(['worker_id' => $this->id])->andWhere(['not', 'finished_at', null])->count();
+        return [
+            'worker_id' => $this->id,
+            'started' => $started,
+            'done' => $done,
+        ];
     }
 
     /**

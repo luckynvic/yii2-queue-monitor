@@ -9,8 +9,8 @@ namespace zhuravljov\yii\queue\monitor\records;
 
 use DateInterval;
 use DateTime;
-use yii\db\ActiveQuery;
-use yii\db\Query;
+use yii\mongodb\ActiveQuery;
+use yii\mongodb\Query;
 
 /**
  * Push Query
@@ -25,7 +25,6 @@ class PushQuery extends ActiveQuery
     public function init()
     {
         parent::init();
-        $this->alias('push');
     }
 
     /**
@@ -34,7 +33,7 @@ class PushQuery extends ActiveQuery
      */
     public function byId($id)
     {
-        return $this->andWhere(['push.id' => $id]);
+        return $this->andWhere(['_id' => $id]);
     }
 
     /**
@@ -45,9 +44,9 @@ class PushQuery extends ActiveQuery
     public function byJob($senderName, $jobUid)
     {
         return $this
-            ->andWhere(['push.sender_name' => $senderName])
-            ->andWhere(['push.job_uid' => $jobUid])
-            ->orderBy(['push.id' => SORT_DESC])
+            ->andWhere(['sender_name' => $senderName])
+            ->andWhere(['job_uid' => $jobUid])
+            ->orderBy(['_id' => SORT_DESC])
             ->limit(1);
     }
 
@@ -57,7 +56,7 @@ class PushQuery extends ActiveQuery
     public function waiting()
     {
         return $this
-            ->joinLastExec()
+            ->with(['lastExec'])
             ->andWhere(['or', ['push.last_exec_id' => null], ['last_exec.retry' => true]])
             ->andWhere(['push.stopped_at' => null]);
     }
@@ -69,7 +68,7 @@ class PushQuery extends ActiveQuery
     {
         return $this
             ->andWhere(['is not', 'push.last_exec_id', null])
-            ->joinLastExec()
+            ->with('lastExec')
             ->andWhere(['last_exec.finished_at' => null]);
     }
 
@@ -79,7 +78,7 @@ class PushQuery extends ActiveQuery
     public function done()
     {
         return $this
-            ->joinLastExec()
+            ->with('lastExec')
             ->andWhere(['is not', 'last_exec.finished_at', null])
             ->andWhere(['last_exec.retry' => false]);
     }
@@ -121,7 +120,7 @@ class PushQuery extends ActiveQuery
      */
     public function stopped()
     {
-        return $this->andWhere(['is not', 'push.stopped_at', null]);
+        return $this->andWhere(['is not', 'stopped_at', null]);
     }
 
     /**
@@ -138,13 +137,13 @@ class PushQuery extends ActiveQuery
     /**
      * @return $this
      */
-    public function joinLastExec()
-    {
-        return $this->leftJoin(
-            ['last_exec' => ExecRecord::tableName()],
-            '{{last_exec}}.[[id]] = {{push}}.[[last_exec_id]]'
-        );
-    }
+    // public function joinLastExec()
+    // {
+        // return $this->leftJoin(
+        //     ['last_exec' => ExecRecord::tableName()],
+        //     '{{last_exec}}.[[id]] = {{push}}.[[last_exec_id]]'
+        // );
+    // }
 
     /**
      * @param string $interval
@@ -154,7 +153,7 @@ class PushQuery extends ActiveQuery
     public function deprecated($interval)
     {
         $min = (new DateTime())->sub(new DateInterval($interval))->getTimestamp();
-        return $this->andWhere(['<', 'push.pushed_at', $min]);
+        return $this->andWhere(['<', 'pushed_at', $min]);
     }
 
     /**

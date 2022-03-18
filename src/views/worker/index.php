@@ -21,15 +21,16 @@ $format = Module::getInstance()->formatter;
         'dataProvider' => new ActiveDataProvider([
             'query' => $filter->search()
                 ->active()
-                ->with('execTotal')
-                ->with('lastExec.push'),
+                // ->with('execTotal')
+                // ->with('lastExec.push')
+                ,
             'sort' => [
                 'attributes' => [
                     'host',
                     'pid',
                     'started_at' => [
-                        'asc' => ['sender_name' => SORT_ASC, 'id' => SORT_ASC],
-                        'desc' => ['sender_name' => SORT_ASC, 'id' => SORT_DESC],
+                        'asc' => ['sender_name' => SORT_ASC, '_id' => SORT_ASC],
+                        'desc' => ['sender_name' => SORT_ASC, '_id' => SORT_DESC],
                     ],
                 ],
                 'defaultOrder' => [
@@ -76,7 +77,7 @@ $format = Module::getInstance()->formatter;
                 return '';
             }
             $senderName = $record->sender_name;
-            $groupTitle = Module::t('main', 'Sender: {name} {class}', [
+            $groupTitle = Module::t('main', 'Sender: {name}', [
                 'name' => $record->sender_name,
                 'class' => get_class(Yii::$app->get($record->sender_name)),
             ]);

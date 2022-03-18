@@ -94,13 +94,7 @@ class JobMonitor extends Behavior
         if (!$this->isActive($event->job)) {
             return;
         }
-
-        if ($this->env->db->getTransaction()) {
-            // create new database connection, if there is an open transaction
-            // to ensure insert statement is not affected by a rollback
-            $this->env->db = clone $this->env->db;
-        }
-
+        
         $push = new PushRecord();
         $push->parent_id = static::$startedPush ? static::$startedPush->id : null;
         $push->sender_name = $this->getSenderName($event);
@@ -131,7 +125,6 @@ class JobMonitor extends Behavior
             $event->handled = true;
             return;
         }
-        $this->env->db->transaction(function () use ($event, $push) {
             $worker = $this->getWorkerRecord($event);
 
             $exec = new ExecRecord();
@@ -151,7 +144,6 @@ class JobMonitor extends Behavior
                 $worker->last_exec_id = $exec->id;
                 $worker->save(false);
             }
-        });
     }
 
     /**
@@ -178,7 +170,7 @@ class JobMonitor extends Behavior
                 'result_data' => $event->result !== null ? serialize($event->result) : null,
                 'retry' => (bool) $event->retry,
             ], [
-                'id' => $push->last_exec_id
+                '_id' => $push->last_exec_id
             ]);
         }
     }
@@ -248,11 +240,9 @@ class JobMonitor extends Behavior
     protected function getPushRecord(JobEvent $event)
     {
         if ($event->id !== null) {
-            return $this->env->db->useMaster(function () use ($event) {
                 return PushRecord::find()
                     ->byJob($this->getSenderName($event), $event->id)
                     ->one();
-            });
         } else {
             return null;
         }
@@ -271,12 +261,10 @@ class JobMonitor extends Behavior
             return null;
         }
 
-        return $this->env->db->useMaster(function () use ($event) {
-            return WorkerRecord::find()
-                ->byEvent($this->env->getHost(), $event->sender->getWorkerPid())
-                ->active()
-                ->one();
-        });
+        return WorkerRecord::find()
+            ->byEvent($this->env->getHost(), (int)$event->sender->getWorkerPid())
+            ->active()
+            ->one();
     }
 
     /**

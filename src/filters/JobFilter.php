@@ -104,9 +104,9 @@ class JobFilter extends BaseFilter
     {
         return $this->env->cache->getOrSet(__METHOD__, function () {
             return PushRecord::find()
-                ->select('push.sender_name')
-                ->groupBy('push.sender_name')
-                ->orderBy('push.sender_name')
+                ->select(['sender_name'])
+                // ->groupBy('sender_name')
+                ->orderBy('sender_name')
                 ->column();
         }, 3600);
     }
@@ -118,9 +118,9 @@ class JobFilter extends BaseFilter
     {
         return $this->env->cache->getOrSet(__METHOD__, function () {
             return PushRecord::find()
-                ->select('push.job_class')
-                ->groupBy('push.job_class')
-                ->orderBy('push.job_class')
+                ->select(['job_class'])
+                // ->groupBy('job_class')
+                ->orderBy('job_class')
                 ->column();
         }, 3600);
     }
@@ -135,11 +135,11 @@ class JobFilter extends BaseFilter
             return $query->andWhere('1 = 0');
         }
 
-        $query->andFilterWhere(['push.sender_name' => $this->sender]);
-        $query->andFilterWhere(['like', 'push.job_class', $this->class]);
-        $query->andFilterWhere(['like', 'push.job_data', $this->contains]);
-        $query->andFilterWhere(['>=', 'push.pushed_at', $this->parseDatetime($this->pushed_after)]);
-        $query->andFilterWhere(['<=', 'push.pushed_at', $this->parseDatetime($this->pushed_before, true)]);
+        $query->andFilterWhere(['sender_name' => $this->sender]);
+        $query->andFilterWhere(['like', 'job_class', $this->class]);
+        $query->andFilterWhere(['like', 'job_data', $this->contains]);
+        $query->andFilterWhere(['>=', 'pushed_at', $this->parseDatetime($this->pushed_after)]);
+        $query->andFilterWhere(['<=', 'pushed_at', $this->parseDatetime($this->pushed_before, true)]);
 
         if ($this->is === self::IS_WAITING) {
             $query->waiting();
@@ -165,12 +165,16 @@ class JobFilter extends BaseFilter
      */
     public function searchClasses()
     {
-        return $this->search()
-            ->select(['name' => 'push.job_class', 'count' => 'COUNT(*)'])
-            ->groupBy(['name'])
-            ->orderBy(['name' => SORT_ASC])
-            ->asArray()
-            ->all();
+        // return $this->search()
+        //     ->select(['name' => 'push.job_class', 'count' => 'COUNT(*)'])
+        //     ->groupBy(['name'])
+        //     ->orderBy(['name' => SORT_ASC])
+        //     ->asArray()
+        //     ->all();
+        return $this->aggregate(['_id'=>'$job_class', 'count'=>'$sum:1'], '$group')
+                ->orderBy(['job_class' => SORT_ASC])
+                ->asArray()
+                ->all();
     }
 
     /**
@@ -178,10 +182,14 @@ class JobFilter extends BaseFilter
      */
     public function searchSenders()
     {
-        return $this->search()
-            ->select(['name' => 'push.sender_name', 'count' => 'COUNT(*)'])
-            ->groupBy(['name'])
-            ->orderBy(['name' => SORT_ASC])
+        // return $this->search()
+        //     ->select(['name' => 'push.sender_name', 'count' => 'COUNT(*)'])
+        //     ->groupBy(['name'])
+        //     ->orderBy(['name' => SORT_ASC])
+        //     ->asArray()
+        //     ->all();
+        return $this->aggregate(['_id'=>'$sender_name', 'count'=>'$sum:1'], '$group')
+            ->orderBy(['sender_name' => SORT_ASC])
             ->asArray()
             ->all();
     }

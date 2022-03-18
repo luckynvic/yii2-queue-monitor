@@ -36,7 +36,7 @@ JobItemAsset::register($this);
                         ->with(['parent', 'firstExec', 'lastExec', 'execTotal']),
                     'sort' => [
                         'defaultOrder' => [
-                            'id' => SORT_DESC,
+                            '_id' => SORT_DESC,
                         ],
                     ],
                 ]),
