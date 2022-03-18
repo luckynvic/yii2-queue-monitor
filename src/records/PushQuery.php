@@ -55,10 +55,8 @@ class PushQuery extends ActiveQuery
      */
     public function waiting()
     {
-        return $this
-            ->with(['lastExec'])
-            ->andWhere(['or', ['push.last_exec_id' => null], ['last_exec.retry' => true]])
-            ->andWhere(['push.stopped_at' => null]);
+        return $this->andWhere(['or', ['last_exec_id' => null], ['last_exec_retry' => true]])
+            ->andWhere(['stopped_at' => null]);
     }
 
     /**
@@ -67,9 +65,8 @@ class PushQuery extends ActiveQuery
     public function inProgress()
     {
         return $this
-            ->andWhere(['is not', 'push.last_exec_id', null])
-            ->with('lastExec')
-            ->andWhere(['last_exec.finished_at' => null]);
+            ->andWhere(['not', 'last_exec_id', null])
+            ->andWhere(['last_exec_finished_at' => null]);
     }
 
     /**
@@ -78,9 +75,8 @@ class PushQuery extends ActiveQuery
     public function done()
     {
         return $this
-            ->with('lastExec')
-            ->andWhere(['is not', 'last_exec.finished_at', null])
-            ->andWhere(['last_exec.retry' => false]);
+            ->andWhere(['not', 'last_exec_finished_at', null])
+            ->andWhere(['last_exec_retry' => false]);
     }
 
     /**
@@ -90,7 +86,7 @@ class PushQuery extends ActiveQuery
     {
         return $this
             ->done()
-            ->andWhere(['last_exec.error' => null]);
+            ->andWhere(['last_exec_error' => null]);
     }
 
     /**
@@ -100,7 +96,7 @@ class PushQuery extends ActiveQuery
     {
         return $this
             ->done()
-            ->andWhere(['is not', 'last_exec.error', null]);
+            ->andWhere(['not', 'last_exec_error', null]);
     }
 
     /**
@@ -120,30 +116,8 @@ class PushQuery extends ActiveQuery
      */
     public function stopped()
     {
-        return $this->andWhere(['is not', 'stopped_at', null]);
+        return $this->andWhere(['not', 'stopped_at', null]);
     }
-
-    /**
-     * @return $this
-     */
-    public function joinFirstExec()
-    {
-        return $this->leftJoin(
-            ['first_exec' => ExecRecord::tableName()],
-            '{{first_exec}}.[[id]] = {{push}}.[[first_exec_id]]'
-        );
-    }
-
-    /**
-     * @return $this
-     */
-    // public function joinLastExec()
-    // {
-        // return $this->leftJoin(
-        //     ['last_exec' => ExecRecord::tableName()],
-        //     '{{last_exec}}.[[id]] = {{push}}.[[last_exec_id]]'
-        // );
-    // }
 
     /**
      * @param string $interval

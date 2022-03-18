@@ -106,6 +106,9 @@ class PushRecord extends ActiveRecord
             'stopped_at',
             'first_exec_id',
             'last_exec_id',
+            'last_exec_finished_at',
+            'last_exec_retry',
+            'last_exec_error',
         ];
     }
 

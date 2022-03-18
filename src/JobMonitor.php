@@ -163,15 +163,21 @@ class JobMonitor extends Behavior
             $event->retry = false;
         }
         if ($push->last_exec_id) {
+            $time = time();
+            $error = $event->error ? (string) $event->error : null;
             ExecRecord::updateAll([
-                'finished_at' => time(),
+                'finished_at' => $time,
                 'memory_usage' => static::$startedPush ? memory_get_peak_usage() : null,
-                'error' => $event->error,
+                'error' => $error,
                 'result_data' => $event->result !== null ? serialize($event->result) : null,
                 'retry' => (bool) $event->retry,
             ], [
                 '_id' => $push->last_exec_id
             ]);
+            $push->last_exec_error = $error;
+            $push->last_exec_retry = (bool) $event->retry;
+            $push->last_exec_finished_at = $time;
+            $push->save(false);
         }
     }
 
