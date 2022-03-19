@@ -1,5 +1,5 @@
 {
-    "name": "zhuravljov/yii2-queue-monitor",
+    "name": "luckynvic/yii2-queue-monitor",
     "description": "Yii2 Queue Analytics Module",
     "type": "yii2-extension",
     "keywords": ["yii", "queue", "analytics", "module"],
@@ -9,10 +9,14 @@
             "name": "Roman Zhuravlev",
             "email": "zhuravljov@gmail.com"
         }
+        {
+            "name": "Lucky Vic",
+            "email": "luckynvic@gmail.com"
+        }
     ],
     "support": {
-        "issues": "https://github.com/zhuravljov/yii2-queue-monitor/issues",
-        "source": "https://github.com/zhuravljov/yii2-queue-monitor"
+        "issues": "https://github.com/luckynvic/yii2-queue-monitor/issues",
+        "source": "https://github.com/luckynvic/yii2-queue-monitor"
     },
     "require": {
         "php": ">=5.5.0",

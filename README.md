@@ -4,7 +4,7 @@ Yii2 Queue Analytics Module
 The module collects statistics about working of queues of an application, and provides web interface
 for research. Also the module allows to stop and replay any jobs manually.
 
-This use mongodb as database 
+This library is fork of https://github.com/zhuravljov/yii2-queue-monitor. Major change is storage to mongodb.
 
 [![Latest Stable Version](https://poser.pugx.org/zhuravljov/yii2-queue-monitor/v/stable.svg)](https://packagist.org/packages/zhuravljov/yii2-queue-monitor)
 [![Total Downloads](https://poser.pugx.org/zhuravljov/yii2-queue-monitor/downloads.svg)](https://packagist.org/packages/zhuravljov/yii2-queue-monitor)
