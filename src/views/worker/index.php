@@ -52,9 +52,10 @@ $format = Module::getInstance()->formatter;
                 'template' => '{stop}',
                 'buttons' => [
                     'stop' => function ($url) {
-                        return Html::a(Html::icon('stop'), $url, [
+                        return Html::a('Stop', $url, [
                             'data' => ['method' => 'post', 'confirm' => Yii::t('yii', 'Are you sure?')],
                             'title' => Module::t('main', 'Stop the worker.'),
+                            'class' => 'btn btn-warning btn-xs',
                         ]);
                     },
                 ],
