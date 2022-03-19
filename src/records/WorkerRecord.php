@@ -114,7 +114,7 @@ class WorkerRecord extends ActiveRecord
      */
     public function getExecs()
     {
-        return $this->hasMany(ExecRecord::class, ['worker_id' => '_id']);
+        return $this->hasMany(ExecRecord::class, ['worker_id' => 'id']);
     }
 
     /**

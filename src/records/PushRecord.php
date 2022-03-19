@@ -130,7 +130,7 @@ class PushRecord extends ActiveRecord
      */
     public function getChildren()
     {
-        return $this->hasMany(static::class, ['parent_id' => '_id']);
+        return $this->hasMany(static::class, ['parent_id' => 'id']);
     }
 
     /**
@@ -138,7 +138,7 @@ class PushRecord extends ActiveRecord
      */
     public function getExecs()
     {
-        return $this->hasMany(ExecRecord::class, ['push_id' => '_id']);
+        return $this->hasMany(ExecRecord::class, ['push_id' => 'id']);
     }
 
     /**
