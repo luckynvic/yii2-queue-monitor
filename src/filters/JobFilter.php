@@ -135,8 +135,10 @@ class JobFilter extends BaseFilter
 
         $query->andFilterWhere(['sender_name' => $this->sender]);
         $query->andFilterWhere(['like', 'job_class', $this->class]);
-        $query->andFilterWhere(['like', 'job_data', $this->contains]);
-        $query->andFilterWhere(['like', 'context', $this->contains]);
+        $query->andFilterWhere(['or', 
+            ['like', 'job_data', $this->contains],
+            ['like', 'context', $this->contains]
+        ]);
         $query->andFilterWhere(['>=', 'pushed_at', $this->parseDatetime($this->pushed_after)]);
         $query->andFilterWhere(['<=', 'pushed_at', $this->parseDatetime($this->pushed_before, true)]);
 
