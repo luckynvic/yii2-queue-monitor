@@ -9,6 +9,7 @@ namespace zhuravljov\yii\queue\monitor\filters;
 
 use DateTime;
 use Yii;
+use yii\helpers\ArrayHelper;
 use zhuravljov\yii\queue\monitor\Module;
 use zhuravljov\yii\queue\monitor\records\PushQuery;
 use zhuravljov\yii\queue\monitor\records\PushRecord;
@@ -103,10 +104,15 @@ class JobFilter extends BaseFilter
     public function senderList()
     {
         return $this->env->cache->getOrSet(__METHOD__, function () {
-            return PushRecord::find()
-                ->select(['sender_name'])
-                ->orderBy('sender_name')
-                ->distinct('sender_name');
+            $collection = PushRecord::getCollection()->aggregate([
+                [ '$group' => [
+                    '_id' => [ 'sender_name' => '$sender_name']
+                ]],
+                [ '$group' => [
+                    '_id' => '$_id.sender_name',
+                ]]
+                ]);
+            return ArrayHelper::map($collection, '_id', '_id');
         }, 3600);
     }
 
@@ -116,10 +122,15 @@ class JobFilter extends BaseFilter
     public function classList()
     {
         return $this->env->cache->getOrSet(__METHOD__, function () {
-            return PushRecord::find()
-                ->select(['job_class'])
-                ->orderBy('job_class')
-                ->distinct('job_class');
+            $collection = PushRecord::getCollection()->aggregate([
+                [ '$group' => [
+                    '_id' => [ 'job_class' => '$job_class']
+                ]],
+                [ '$group' => [
+                    '_id' => '$_id.job_class',
+                ]]
+                ]);
+            return ArrayHelper::map($collection, '_id', '_id');
         }, 3600);
     }
 
